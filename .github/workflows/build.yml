@@ -8,6 +8,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: ''
       - name: Unpack project zip
         run: for z in *.zip; do unzip -oq "$z"; done
       - uses: actions/setup-java@v4
