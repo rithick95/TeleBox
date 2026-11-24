@@ -1,0 +1,30 @@
+name: Build APK
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Unpack project zip
+        run: for z in *.zip; do unzip -oq "$z"; done
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - name: Accept Android licenses
+        run: yes | /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null || true
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.9"
+      - run: gradle assembleDebug --no-daemon
+        env:
+          TG_API_ID: ${{ secrets.TG_API_ID }}
+          TG_API_HASH: ${{ secrets.TG_API_HASH }}
+          TMDB_KEY: ${{ secrets.TMDB_KEY }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Stream-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
